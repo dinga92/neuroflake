@@ -1,9 +1,7 @@
 {pkgs ? import <nixpkgs> {}}: let
   py = pkgs.python3Packages;
-  # # Import fslpy.nix to include fslpy as a dependency
-  # fslpy = import ./fslpy.nix {inherit pkgs;};
 in
-  py.buildPythonPackage rec {
+  py.buildPythonPackage {
     pname = "fsleyes-widgets";
     version = "0.15.0";
     format = "pyproject";
@@ -16,31 +14,23 @@ in
       sha256 = "sha256-Rue0v6ITishtUvqKme4blHYfyRN7T57q4vWEhm37IdI=";
     };
 
-    # Add fslpy as a propagated build input
     propagatedBuildInputs = with py; [
       numpy
       wxpython
       matplotlib
-      # fslpy # Add fslpy to the propagated build inputs
-      dill
-      h5py
-      nibabel
-      scipy
-
-      pytest
-      pytest-cov
     ];
 
-    buildInputs = [py.setuptools];
+    buildInputs = [py.setuptools ];
 
-    nativeCheckInputs = with py; [
+    nativeCheckInputs = (with py; [
       pytest
       pytest-cov
-    ];
+    ]) ++ [ pkgs.xvfb-run ];
 
-    doCheck = false;
+    doCheck = true;
 
     checkPhase = ''
-      pytest fsleyes_widgets/tests --tb=no -q
+      # pytest fsleyes_widgets/tests --tb=no -q
+      xvfb-run -s "-screen 0 800x600x24" pytest fsleyes_widgets/tests --tb=no -q
     '';
   }
