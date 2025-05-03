@@ -1,7 +1,7 @@
 {pkgs ? import <nixpkgs> {}}: let
   py = pkgs.python3Packages;
 in
-  py.buildPythonPackage rec {
+  py.buildPythonPackage {
     pname = "fslpy";
     version = "3.22.0";
     format = "pyproject";
@@ -36,14 +36,19 @@ in
       pytest
       coverage
       pytest-cov
+      pkgs.xvfb-run
     ];
 
     doCheck = true;
 
     checkPhase = ''
-        # disable because they require FSL or FSL path, X server, network access, creating or accessing non-existent test files, etc.
-       pytest fsl/tests/ --tb=no -q --disable-warnings \
-      -m "not fsltest and not wxtest and not dicomtest and not noroottest and not longtest and not unixtest" \
-      --ignore=fsl/tests/test_fslsub.py --ignore=fsl/tests/test_wrappers
+      # Run tests with virtual display, excluding tests that:
+      # - Require FSL or network access, or fail because they are mocking files
+      xvfb-run -s "-screen 0 800x600x24" \
+        pytest fsl/tests/ -q --tb=no --disable-warnings \
+        -m "not fsltest and not dicomtest" \
+        --ignore=fsl/tests/test_fslsub.py \
+        --ignore=fsl/tests/test_run.py \
+        --ignore=fsl/tests/test_wrappers
     '';
   }
