@@ -30,14 +30,15 @@ pkgs.python3Packages.buildPythonPackage rec {
     pytest
     pytest-cov
     pytest-mock
-    pytest-asyncio
     pytest-textual-snapshot
-    sphinx
+    pytest-asyncio
   ];
 
   checkPhase = ''
-    pytest src/tests --ignore src/tests/test_app.py
+    pytest src/tests/ --ignore src/tests/test_app.py
   '';
+
+  doCheck = true;
 
   meta = with pkgs.lib; {
     description = "Describe structure directory for visualisation and pipeline";
