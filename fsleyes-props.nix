@@ -5,7 +5,7 @@
   fslpy = import ./fslpy.nix {inherit pkgs;};
   fsleyesWidgets = import ./fsleyes-widgets.nix {inherit pkgs;};
 in
-  py.buildPythonPackage rec {
+  py.buildPythonPackage {
     pname = "fsleyes-props";
     version = "1.12.0";
     format = "pyproject";
@@ -33,13 +33,13 @@ in
       pytest
       coverage
       pytest-cov
+
+      pkgs.xvfb-run
     ];
 
     doCheck = true;
 
     checkPhase = ''
-      pytest fsleyes_props/tests \
-        -k "not test_property_colourmap and not test_widget_boolean and not test_widget_bounds and not test_widget_number and not test_widget_point" \
-        --tb=no -q --disable-warnings
+     xvfb-run -s "-screen 0 800x600x24" pytest fsleyes_props/tests --tb=no -q --disable-warnings
     '';
   }
