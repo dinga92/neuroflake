@@ -33,7 +33,6 @@ in
       pytest
       coverage
       pytest-cov
-
       pkgs.xvfb-run
     ];
 

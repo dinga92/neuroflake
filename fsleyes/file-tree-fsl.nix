@@ -5,7 +5,7 @@
   # Importing the file-tree package
   fileTree = import ./file-tree.nix {pkgs = pkgs;};
 in
-  pythonPackages.buildPythonPackage rec {
+  pythonPackages.buildPythonPackage {
     pname = "file-tree-fsl";
     version = "0.2.3";
 
@@ -22,7 +22,7 @@ in
       hatchling
     ];
 
-    propagatedBuildInputs = with pythonPackages; [
+    propagatedBuildInputs = [
       fileTree
     ];
 
@@ -34,5 +34,13 @@ in
       maintainers = [];
     };
 
-    doCheck = false;
+    nativeCheckInputs = with pythonPackages; [
+      pytest
+    ];
+
+    doCheck = true;
+
+    checkPhase = ''
+      pytest file_tree_fsl/test_load.py
+    '';
   }
