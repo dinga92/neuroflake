@@ -11,23 +11,21 @@ in
       owner = "fsl";
       repo = "fslpy";
       rev = "3d8e6cdd626b882874e07d12fb577c20dbeb133a";
-      # sha256 = "sha256-FmXYYdgjv+9vbo+SsgE1KUg7GVhZkWw0LWLy7hm/Sig=";
       sha256 = "sha256-DmDhIJa8jC+JJRbD3UsLun8xAyyPKLEl5FmoZEPLUV8=";
     };
 
     propagatedBuildInputs = with py; [
       dill
-      h5py
-      nibabel
       numpy
       scipy
+      h5py
+      nibabel
       wxpython
       trimesh
       rtree
       indexed-gzip
       pkgs.dcm2niix
       pillow
-      pytest
     ];
 
     buildInputs = [py.setuptools];
