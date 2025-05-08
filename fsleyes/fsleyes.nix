@@ -60,22 +60,23 @@ in
       pkgs.openjpeg
       pkgs.libyaml
       pkgs.gobject-introspection
+      pkgs.stdenv.cc.cc.lib
 
       indexed-gzip
       ipykernel
       ipython
       jupyter_client
-     nbclassic
+      nbclassic
       pyzmq
       rtree
-     tornado
+      tornado
       trimesh
       xnatpy
     ];
 
     nativeBuildInputs = [pkgs.wrapGAppsHook3];
 
-    buildInputs = [py.setuptools  ];
+    buildInputs = [py.setuptools];
 
     nativeCheckInputs = with py; [
       pkgs.autoPatchelfHook
