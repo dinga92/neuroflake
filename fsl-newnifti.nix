@@ -1,18 +1,23 @@
 {pkgs ? import <nixpkgs> {}}: let
   fslBase = pkgs.callPackage ./fsl-base.nix {};
+  fslZnzlib = pkgs.callPackage ./fsl-znzlib.nix {};
 in
   pkgs.stdenv.mkDerivation rec {
-    pname = "fsl-znzlib";
-    version = "2111.0";
+    pname = "fsl-newnifti";
+    version = "4.1.0";
 
     src = pkgs.fetchgit {
-      url = "https://git.fmrib.ox.ac.uk/fsl/znzlib.git";
+      url = "https://git.fmrib.ox.ac.uk/fsl/NewNifti.git";
       rev = version;
-      sha256 = "sha256-cTRxxf27pt6eBejbSdiLeIP2nk/P/xCcxtUUvG4OT+Y=";
+      sha256 = "sha256-R4g+mFnmzcxTMGiKThiGxANi9ecxhY8uEQ+TKdkgKC0=";
     };
 
     nativeBuildInputs = [pkgs.gcc pkgs.coreutils];
-    buildInputs = [fslBase pkgs.zlib];
+
+    buildInputs = [
+      fslBase
+      fslZnzlib
+    ];
 
     buildPhase = ''
       make CXXFLAGS="$CXXFLAGS" LDFLAGS="$LDFLAGS" \
@@ -36,10 +41,6 @@ in
       make install \
            FSLSWDIR=${fslBase} \
            FSLCONFDIR=${fslBase}/config
-
-      mkdir -p $out/include
-      ln -s ${pkgs.zlib.dev}/include/zlib.h $out/include/zlib.h
-
     '';
 
     meta = with pkgs.lib; {
