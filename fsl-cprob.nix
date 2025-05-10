@@ -2,7 +2,7 @@
   fslBase = pkgs.callPackage ./fsl-base.nix {};
 in
   pkgs.stdenv.mkDerivation rec {
-    pname = "fsl-cprop";
+    pname = "fsl-cprob";
     version = "2111.0";
 
     src = pkgs.fetchgit {
@@ -14,9 +14,16 @@ in
     buildInputs = [fslBase];
 
     buildPhase = ''
-      make CXXFLAGS="$CXXFLAGS" LDFLAGS="$LDFLAGS" \
-           FSLSWDIR=${fslBase} \
-           FSLCONFDIR=${fslBase}/config
+      unset NIX_LDFLAGS
+
+      make \
+        ARCHLDFLAGS= \
+        ARCHLIBS=     \
+        LIBS=         \
+        CXXFLAGS="$NIX_CXXFLAGS_COMPILE -static-libstdc++ -static-libgcc" \
+        LDFLAGS="-pthread" \
+        FSLSWDIR=${fslBase} \
+        FSLCONFDIR=${fslBase}/config
     '';
 
     installPhase = ''
@@ -32,6 +39,5 @@ in
     '';
 
     meta = with pkgs.lib; {
-      license = licenses.gpl3;
     };
   }
