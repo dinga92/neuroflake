@@ -16,6 +16,8 @@ pkgs.stdenv.mkDerivation rec {
     sha256 = "sha256-/aeXyPcdynKujxWDMjpfVGB5Sbt4w1EG5rXNoZ0khXU";
   };
 
+  # src = ./base;
+
   nativeBuildInputs = with pkgs; [
     python3
     python3.pkgs.pip
@@ -53,6 +55,12 @@ pkgs.stdenv.mkDerivation rec {
       --replace 'license = "Apache-2.0"' \
                 'license = { text = "Apache-2.0" }'
 
+    # # Fix Makefile indentation in rules.mk
+    # sed -i -E '/^install:/,/^[^\t]/ {
+    #     s/^(\t@.*) \\/&\n\t\t/
+    #     s/^(\t)[ ]+/\1\t/
+    # }' ./source/config/rules.mk
+
     # Replace mkdir references with the local version
     substituteInPlace ./source/config/rules.mk \
       --replace '/bin/mkdir' 'mkdir'
@@ -71,6 +79,11 @@ pkgs.stdenv.mkDerivation rec {
 
     # If the .git metadata is missing, set a dummy version using setuptools-scm
     export SETUPTOOLS_SCM_PRETEND_VERSION="${version}"
+
+    # inject "include default.mk" at top of Makefile
+    sed -i '1i\
+    include default.mk
+    ' Makefile
   '';
 
   buildPhase = ''
