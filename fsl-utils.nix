@@ -74,41 +74,39 @@ in
       sha256 = "sha256-TT3o8Qxqp2K/P55Wmy6hDLHv/zh1k/eaCJZ+MLp9jR0=";
     };
 
-    nativeBuildInputs = [pkgs.gcc pkgs.coreutils];
     buildInputs = [fslBase fslArmawrap];
 
+    configurePhase = ''
+      export FSLDIR=${fslBase}
+      export FSLDEVDIR=${fslBase}
+      ln -sfn ${fslBase}/config config
+      source ${fslBase}/etc/fslconf/fsl-devel.sh
+    '';
+
     buildPhase = ''
-      make CXXFLAGS="$CXXFLAGS" LDFLAGS="$LDFLAGS" \
-           FSLSWDIR=${fslBase} \
-           FSLCONFDIR=${fslBase}/config
+      unset NIX_LDFLAGS
+
+      make \
+        ARCHLDFLAGS= \
+        ARCHLIBS=     \
+        LIBS=         \
+        CXXFLAGS="$NIX_CXXFLAGS_COMPILE" \
+        LDFLAGS="-ldl -pthread -lstdc++ -lgcc_s" \
+        FSLCONFDIR=${fslBase}/config
     '';
 
     installPhase = ''
-      # Create fslversion explicitly (not a symlink)
-      mkdir -p $out/etc
-      cat ${fslBase}/bin/fslversion > $out/etc/fslversion
-
-      # Ensure fsl-devel.sh exists
-      mkdir -p $out/etc/fslconf
-      cp ${fslBase}/etc/fslconf/fsl-devel.sh $out/etc/fslconf/
-
-      export FSLDIR=$out
-      export FSLDEVDIR=$out
-      export FSLCONFDIR=${fslBase}/config
-      export PATH=${pkgs.coreutils}/bin:$PATH
-
-      # Verify paths before installation
-      echo "FSLDIR contents:"
-      ls -l $FSLDIR/etc
+      mkdir -p $out/{bin,lib,include,config,etc}
 
       make install \
-           FSLSWDIR=${fslBase} \
-           FSLCONFDIR=${fslBase}/config
+        PREFIX=$out \
+        FSLDIR=$out \
+        FSLDEVDIR=$out \
+        FSLCONFDIR=${fslBase}/config
     '';
 
     meta = with pkgs.lib; {
       description = "FSL Utilities";
       homepage = "https://git.fmrib.ox.ac.uk/fsl/utils.git";
-      license = licenses.gpl3;
     };
   }
