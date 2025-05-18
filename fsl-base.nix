@@ -71,7 +71,7 @@ pkgs.stdenv.mkDerivation rec {
     substituteInPlace ./source/Makefile \
       --replace '/bin/mkdir' 'mkdir'
 
-    # Modify Makefile to ensure proper pip install options
+    # ModiXfy Makefile to ensure proper pip install options
     substituteInPlace source/Makefile \
       --replace \
       '/bin/python -m pip install ./python' \
@@ -106,8 +106,10 @@ pkgs.stdenv.mkDerivation rec {
     export FSLDEVDIR=$out
     make -C ./build install
 
-    site_pkgs="$out/lib/python3.11/site-packages"
+    site_pkgs=($out/lib/python*/site-packages)
+
     mkdir -p "$out/fsl"
+
     cp -r "$site_pkgs/fsl/base" "$out/fsl/"
     cp -r "$site_pkgs"/fsl_base-*.dist-info "$out/"
   '';
