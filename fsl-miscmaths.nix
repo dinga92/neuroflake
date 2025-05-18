@@ -10,13 +10,17 @@ in
     pname = "fsl-miscmaths";
     version = "2412.5";
 
-    src = pkgs.fetchgit {
-      url = "https://git.fmrib.ox.ac.uk/fsl/miscmaths.git";
-      rev = version;
-      sha256 = "7rnKL7LOMwbMMTpSpLUAZc8LTjHsVkkZnQ/wEWhObxo=";
-    };
+    # src = pkgs.fetchgit {
+    #   url = "https://git.fmrib.ox.ac.uk/fsl/miscmaths.git";
+    #   rev = version;
+    #   sha256 = "7rnKL7LOMwbMMTpSpLUAZc8LTjHsVkkZnQ/wEWhObxo=";
+    # };
 
-    dontUseCmakeConfigure = true;
+    src = pkgs.fetchurl {
+      url = "https://fsl.fmrib.ox.ac.uk/fsldownloads/fslconda/public/linux-64/fsl-miscmaths-2412.4-h982b8fd_0.tar.bz2";
+      sha256 = "sha256-OuFLTaaUhcJdtqfd50fUcjaKG1sI48ZCmqAbfD5jvIM=";
+      # sha256 = "0v1p5mwxznrkh2gpqk1jb9v6vw6s3q4b9nmz6fy0fzrk8fxjm1jz"; # update with real hash
+    };
 
     buildInputs = [
       fslBase
@@ -25,37 +29,17 @@ in
       fslUtils
       fslZnzlib
       fslArmawrap
-      pkgs.lapack
-      pkgs.blas
-      pkgs.gfortran
       pkgs.gfortran.cc
-      pkgs.gcc
       pkgs.libz
+      pkgs.gcc
+      pkgs.blas
+      pkgs.lapack
+      pkgs.tree
     ];
 
-    configurePhase = ''
-      export FSLDIR=${fslBase}
-      export FSLDEVDIR=${fslBase}
-      ln -sfn ${fslBase}/config config
-      source ${fslBase}/etc/fslconf/fsl-devel.sh
-    '';
-
-    buildPhase = ''
-      make \
-        FSLSWDIR=${fslBase} \
-        FSLCONFDIR=${fslBase}/config
-    '';
-
-    installPhase = ''
-      mkdir -p $out/etc
-
-      export FSLDIR=$out
-      export FSLDEVDIR=$out
-      export FSLCONFDIR=${fslBase}/config
-
-      make install \
-           FSLSWDIR=${fslBase} \
-           FSLCONFDIR=${fslBase}/config
+    unpackPhase = ''
+      mkdir -p $out
+      tar -xjf "$src" -C $out --strip-components=1
     '';
 
     meta = {
