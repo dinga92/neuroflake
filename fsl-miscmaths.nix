@@ -42,6 +42,26 @@ in
       tar -xjf "$src" -C $out --strip-components=1
     '';
 
+    installPhase = ''
+      mkdir $out/lib
+      mv $out/libfsl-miscmaths.so $out/lib/
+
+      mkdir $out/include
+      mv $out/miscmaths $out/include
+
+      cd $out
+      rm about.json files fsl-miscmaths git hash_input.json has_prefix index.json paths.json recipe run_exports.json -r
+
+      ln -sf ${fslNewnifti}/lib/libfsl-NewNifti.so $out/lib/
+      ln -sf ${fslUtils}/lib/libfsl-utils.so $out/lib/
+      ln -sf ${fslCprob}/lib/libfsl-cprob.so $out/lib/
+
+      ln -s ${pkgs.openblas}/lib/liblapack.so.3   $out/lib/
+      ln -s ${pkgs.openblas}/lib/libblas.so.3     $out/lib/
+      ln -s ${pkgs.stdenv.cc.cc.lib}/lib/libstdc++.so.6 $out/lib/
+    '';
+
+
     meta = {
       description = "FSL miscmaths module";
       homepage = "https://git.fmrib.ox.ac.uk/fsl/miscmaths.git";
