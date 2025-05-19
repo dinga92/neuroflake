@@ -61,7 +61,6 @@ in
       ln -s ${pkgs.stdenv.cc.cc.lib}/lib/libstdc++.so.6 $out/lib/
     '';
 
-
     meta = {
       description = "FSL miscmaths module";
       homepage = "https://git.fmrib.ox.ac.uk/fsl/miscmaths.git";

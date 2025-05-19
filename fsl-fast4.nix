@@ -17,74 +17,53 @@ in
     pname = "fsl-fast4";
     version = "2111.3";
 
-    src = pkgs.fetchgit {
-      url = "https://git.fmrib.ox.ac.uk/fsl/fast4.git";
-      rev = "2111.3";
-      sha256 = "sha256-pvurhxjbvKShikJyL0lC3N2aXVln61vG0EGZ0IRfHig=";
+    # src = pkgs.fetchgit {
+    #   url = "https://git.fmrib.ox.ac.uk/fsl/fast4.git";
+    #   rev = "2111.3";
+    #   sha256 = "sha256-pvurhxjbvKShikJyL0lC3N2aXVln61vG0EGZ0IRfHig=";
+    # };
+
+    src = pkgs.fetchurl {
+      url = "https://fsl.fmrib.ox.ac.uk/fsldownloads/fslconda/public/linux-64/fsl-fast4-2111.3-hb6de94e_3.tar.bz2";
+      sha256 = "sha256-S6wqrNoe44SRZfdkcDi5D1qslLnUUGvgpLmDGrrFw0Y=";
     };
 
     buildInputs = [
-      fslBase
       fslArmawrap
-      fslMiscmaths
+      fslBase
+      fslCprob
       fslMiscTcl
+      fslMiscmaths
       fslNewimage
       fslNewnifti
       fslUtils
       fslZnzlib
-      fslCprob
-      pkgs.lapack
-      pkgs.blas
-      pkgs.libz
+      pkgs.openblas
+      pkgs.stdenv.cc.cc
     ];
 
-    configurePhase = ''
-      export FSLDIR=${fslBase}
-      export FSLDEVDIR=${fslBase}
-      ln -sfn ${fslBase}/config config
-      source ${fslBase}/etc/fslconf/fsl-devel.sh
-    '';
-
-    buildPhase = ''
-      make \
-        FSLSWDIR=${fslBase} \
-        FSLCONFDIR=${fslBase}/config
+    unpackPhase = ''
+      mkdir -p $out
+      tar -xjf "$src" -C $out #--strip-components=1
     '';
 
     installPhase = ''
-      mkdir -p $out/etc
 
-      export FSLDIR=$out
-      export FSLDEVDIR=$out
-      export FSLCONFDIR=${fslBase}/config
+      mkdir $out/lib
 
-      make install \
-           FSLSWDIR=${fslBase} \
-           FSLCONFDIR=${fslBase}/config
+      ln -sf ${fslCprob}/lib/libfsl-cprob.so $out/lib/
+      ln -sf ${fslMiscmaths}/lib/libfsl-miscmaths.so $out/lib/
+      ln -sf ${fslNewimage}/lib/libfsl-newimage.so $out/lib/
+      ln -sf ${fslNewnifti}/lib/libfsl-NewNifti.so $out/lib/
+      ln -sf ${fslUtils}/lib/libfsl-utils.so $out/lib/
+
+      ln -s ${pkgs.openblas}/lib/liblapack.so.3   $out/lib/
+      ln -s ${pkgs.openblas}/lib/libblas.so.3     $out/lib/
+      ln -s ${pkgs.stdenv.cc.cc.lib}/lib/libstdc++.so.6 $out/lib/
+
+      rm -r $out/info $out/src
+
     '';
-
-    # buildPhase = ''
-    #   export FSLDIR=$out
-    #   export FSLDEVDIR=$out
-    #
-    #   # Ensure FSL configurations are in place
-    #   mkdir -p $out/config
-    #   ln -s ${fslBase}/config/* $out/config/.
-    #
-    #   mkdir -p $out/etc/fslconf
-    #   ln -s ${fslBase}/etc/fslconf/fsl.sh $out/etc/fslconf/fsl.sh
-    #
-    #   source ${fslBase}/etc/fslconf/fsl-devel.sh
-    #
-    #   # Add LAPACK and BLAS to LDFLAGS
-    #   export LDFLAGS="-L${pkgs.lapack}/lib -L${pkgs.blas}/lib $LDFLAGS"
-    #
-    #   mkdir -p $out/include
-    #   ln -s ${fslArmawrap}/include/* $out/include/
-    #
-    #   # Run the build (make)
-    #   make
-    # '';
 
     meta = {
       description = "FSL FAST4 module";
