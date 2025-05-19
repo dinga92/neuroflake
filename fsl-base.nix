@@ -66,6 +66,10 @@ pkgs.stdenv.mkDerivation rec {
       --replace '/bin/mkdir' 'mkdir'
 
     substituteInPlace ./source/config/buildSettings.mk \
+      --replace '/bin/rm'    'rm' \
+      --replace '/bin/cp'    'cp' \
+      --replace '/bin/mv'    'mv' \
+      --replace '/bin/chmod' 'chmod' \
       --replace '/bin/mkdir' 'mkdir'
 
     substituteInPlace ./source/Makefile \
